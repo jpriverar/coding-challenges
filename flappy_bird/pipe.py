@@ -21,10 +21,12 @@ class Pipe(pygame.sprite.Sprite):
         if dir == Pipe.DOWN:
             base_image = pygame.transform.rotate(base_image, 180)
         self.image = base_image
+        self.mask = pygame.mask.from_surface(self.image)
 
-        if dir == Pipe.DOWN:
+        self.dir = dir
+        if self.dir == Pipe.DOWN:
             self.rect = self.image.get_rect(topleft=(WIDTH, height))
-        elif dir == Pipe.UP:
+        elif self.dir == Pipe.UP:
             self.rect = self.image.get_rect(bottomleft=(WIDTH, height))
 
 

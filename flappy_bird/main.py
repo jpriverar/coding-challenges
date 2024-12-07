@@ -12,8 +12,14 @@ def display_score() -> None:
 
 
 def check_collision() -> bool:
-    # return pygame.sprite.spritecollide(bird, pipe_group, False)
+    global score
     for pipe in pipe_group.sprites():
+        # Check if the pipe has cleared the bird, but only with
+        # up pipes, otherwise we would count double points for 
+        # every pair of pipes
+        if pipe.dir == Pipe.UP and pipe.rect.right < bird.rect.left:
+            score += 1
+            
         if pygame.sprite.collide_mask(bird, pipe):
             return True
     return False
@@ -57,7 +63,7 @@ while running:
     #pygame.draw.rect(screen, 'blue', bird.rect)
     bird_group.draw(screen)
 
-    if check_collision() or bird.rect.bottom == HEIGHT:
+    if check_collision() or bird.rect.bottom == HEIGHT or bird.rect.top < 0:
         running = False
 
     pygame.display.update()
