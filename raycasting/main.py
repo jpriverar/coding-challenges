@@ -18,7 +18,7 @@ class Boundary:
                          color='red', 
                          start_pos=self.p1, 
                          end_pos=self.p2,
-                         width=1)
+                         width=2)
         
 
 class Ray:
@@ -60,8 +60,8 @@ class Ray:
             t = ((x1 - x3)*(y3 - y4) - (y1 - y3)*(x3 - x4)) / den
             u = -((x1 - x2)*(y1 - y3) - (y1 - y2)*(x1 - x3)) / den
 
-            if 0 <= u <= 1:
-                return x3 + u*(x4 - x3), y3 + u*(y4 - y3)
+            if t > 0 and 0 <= u <= 1:
+                return (x3 + u*(x4 - x3), y3 + u*(y4 - y3))
             return None
         except ZeroDivisionError as e:
             return None
@@ -71,7 +71,7 @@ class Raycaster:
     def __init__(self, pos) -> None:
         self.pos = pos
         self.rays = []
-        for th in range(0, 180, 5):
+        for th in range(0, 360, 1):
             ray = Ray((self.pos[0], self.pos[1]), math.radians(th))
             self.rays.append(ray)
 
@@ -96,7 +96,6 @@ class Raycaster:
                     min_distance = d
                     closest = p
 
-
             if closest: 
                 intersection_points.append(closest)
         return intersection_points
@@ -107,10 +106,11 @@ pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 
-boundaries = [Boundary((10, 10), (10, HEIGHT-10)),
-              Boundary((10, 10), (WIDTH-10, 10)),
-              Boundary((WIDTH-10, 10), (WIDTH-10, HEIGHT-10)),
-              Boundary((10, HEIGHT-10), (WIDTH-10, HEIGHT-10))]
+offset = WIDTH // 100
+boundaries = [Boundary((offset, offset), (offset, HEIGHT-offset)),
+              Boundary((offset, offset), (WIDTH-offset, offset)),
+              Boundary((WIDTH-offset, offset), (WIDTH-offset, HEIGHT-offset)),
+              Boundary((offset, HEIGHT-offset), (WIDTH-offset, HEIGHT-offset))]
 for _ in range(5):
     b = Boundary((random.randint(0, WIDTH),
                   random.randint(0, HEIGHT)),
@@ -130,14 +130,15 @@ while running:
             caster.move(event.pos)
 
     screen.fill('black')
-    for b in boundaries: b.draw(screen)
 
-    pygame.draw.circle(screen, 'white', caster.pos, 5)
     points = caster.cast(boundaries)
     for p in points:
         pygame.draw.line(screen, 'white', caster.pos, p)
-        #pygame.draw.circle(screen, 'red', p, 3)
+    pygame.draw.circle(screen, 'red', caster.pos, 5)
     
+    for b in boundaries: 
+        b.draw(screen)
+
     pygame.display.update()
     clock.tick(60)
             
